@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { apiSlice } from "../api/apiSlice";
+import type { CategoryParams, Result, Results } from "../../types/Category";
 import type { RootState } from "../../app/store";
 
 export interface Category {
@@ -10,6 +12,90 @@ export interface Category {
   deleted_at: null | string;
   description: null | string;
 }
+
+const endpointUrl = "/categories";
+
+function parseQueryParams(params: CategoryParams) {
+  const queryParams = new URLSearchParams();
+
+  if (params.page) {
+    queryParams.append("page", params.page.toString());
+  }
+
+  if (params.perPage) {
+    // Envia o tamanho da página com o nome esperado pelo backend.
+    queryParams.append("per_page", params.perPage.toString());
+  }
+
+  if (params.search) {
+    queryParams.append("search", params.search);
+  }
+
+  if (params.isActive !== undefined) {
+    queryParams.append("isActive", params.isActive.toString());
+  }
+
+  return `?${queryParams.toString()}`;
+}
+
+function getCategoriesQuery(params: CategoryParams) {
+  const queryParams = {page: params.page, perPage: params.perPage, search: params.search, isActive: params.isActive};
+  return {
+    url: `${endpointUrl}${parseQueryParams(queryParams)}`,
+    method: "GET",
+  };
+}
+
+function deleteCategoryMutation(category: Category) {
+  return {
+    url: `${endpointUrl}/${category.id}`,
+    method: "DELETE",
+  };
+};
+
+function createCategoryMutation(category: Category) {
+  return { url: endpointUrl, method: "POST", body: category };
+}
+
+function updateCategoryMutation(category: Category) {
+  return {
+    url: `${endpointUrl}/${category.id}`,
+    method: "PUT",
+    body: category,
+  };
+}
+
+function getCategory({ id }: { id: string }) {
+  return `${endpointUrl}/${id}`;
+}
+
+export const categoriesApiSlice = apiSlice.injectEndpoints({
+  endpoints: ({ query, mutation }) => ({
+    getCategories: query<Results, CategoryParams>({
+      query: getCategoriesQuery,
+      providesTags: ["Categories"],
+    }),
+    deleteCategory: mutation<Result, { id: string }>({
+      query: deleteCategoryMutation,
+      invalidatesTags: ["Categories"],
+    }),
+    createCategory: mutation<Result, Category>({
+      query: createCategoryMutation,
+      invalidatesTags: ["Categories"],
+    }),
+    updateCategory: mutation<Result, Category>({
+      query: updateCategoryMutation,
+      invalidatesTags: ["Categories"],
+    }),
+    getCategory: query<Category, { id: string }>({
+      query: getCategory,
+      // Extrai a categoria do campo data retornado pelo backend.
+      transformResponse: (response: { data: Category }) => response.data,
+      providesTags: ["Categories"],
+    }),
+  }),
+});
+
 const category: Category = {
   id: "93seter8-1173-4730-a960-a7ed500923a4",
   name: "Aventura",
@@ -63,5 +149,13 @@ export const selectCategoryById = (state: RootState, id: string) => {
   };
 };
 
-export const { createCategory, updateCategory, deleteCategory } = categoriesSlice.actions;
 export default categoriesSlice.reducer;
+export const { createCategory, updateCategory, deleteCategory } = categoriesSlice.actions;
+
+export const { 
+  useGetCategoriesQuery,
+  useDeleteCategoryMutation,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useGetCategoryQuery,
+} = categoriesApiSlice;

@@ -1,106 +1,61 @@
-import { Box, Button, Typography, IconButton } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Link } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import { deleteCategory, selectCategories } from "./categorySlice";
+import { Box, Button, Typography } from "@mui/material";
 import {
-  DataGrid,
-  GridRowsProp,
-  GridColDef,
-  GridRenderCellParams,
-  GridRowId,
-  GridToolbar,
-  ptBR,
+  GridFilterModel
 } from "@mui/x-data-grid";
-
+import { useState } from "react";
+import { useSnackbar } from "notistack";
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useDeleteCategoryMutation, useGetCategoriesQuery } from "./categorySlice";
+import { CategoriesTable } from "./components/CategoryTable";
 
 const CategoryList = () => {
-  const categories = useAppSelector(selectCategories);
-  const dispatch = useAppDispatch();
-  
-   const rows: GridRowsProp = categories.map((category) => ({
-     id: category.id,
-     name: category.name,
-     description: category.description,
-     is_active: category.is_active,
-     created_at: new Date(category.created_at).toLocaleDateString("pt-BR"),
-    }));
-    
-    const componentsProps = {
-            toolbar: {
-              showQuickFilter: true,
-              quickFilterProps: { debounceMs: 500 },
-            },
-          };
+  const rowsPerPage = [10, 25, 50, 100];
+  const [options, setOptions] = useState({ perPage: 10, search: "", page: 1 });
 
-    const columns: GridColDef[] = [
-      {
-        field: "name",
-        headerName: "Nome",
-        flex: 1,
-        renderCell: renderNameCell,
-      },
-       {
-         field: "is_active",
-         headerName: "Ativo",
-         flex: 1,
-         type: "boolean",
-      renderCell: renderIsActiveCell,
-    },
-    {
-      field: "created_at",
-      headerName: "Criado em",
-      flex: 1,
-      type: "dateTime",
-    },
-    {
-      field: "actions",
-      headerName: "Ações",
-      flex: 1,
-      renderCell: renderActionsCell,
-    },
-  ];
+  const {data, isFetching, error} = useGetCategoriesQuery(options);
+  const [deleteCategoryMutation, deleteCategoryStatus] = useDeleteCategoryMutation();
 
-  function renderNameCell(rowData: GridRenderCellParams) {
-    return (
-      <Link 
-        style={{ textDecoration: "none", color: "inherit" }}
-        to={`/categories/edit/${rowData.id}`}
-      >
-        <Typography color="primary">
-          {rowData.value}
-        </Typography>
-      </Link>
-    );
-  }
-  
-  function handleDeleteCategory(id:string){
-    dispatch(deleteCategory({id}));
+  const { enqueueSnackbar } = useSnackbar();
+
+  function handleOnPageChange(page: number) {
+    setOptions((previous) => ({ ...previous, page: page + 1 }));
   }
 
-  function renderActionsCell(rowData: GridRenderCellParams) {
+  function handleOnPageSizeChange(perPage: number) {
+    setOptions((previous) => ({ ...previous, perPage, page: 1 }));
+  }
 
-    return (
-      <IconButton 
-        color="secondary"
-        onClick={() => handleDeleteCategory(String(rowData.id))}
-        aria-label="delete"
-        >
-        <DeleteIcon />
-      </IconButton>
-    );
+  function handleFilterChange(filterModel: GridFilterModel) {
+   if (!filterModel.quickFilterValues?.length) {
+      return setOptions((previous) => ({ ...previous, search: "", page: 1 }));
+    }
+
+    const search = filterModel.quickFilterValues.join("");
+    setOptions((previous) => ({ ...previous, search, page: 1 }));
   }
-  
-  function renderIsActiveCell(rowData: GridRenderCellParams) {
-    return (
-      <Typography color={rowData.value ? "primary" : "secondary"}>
-        {rowData.value ? "Ativo" : "Inativo"}
-      </Typography>
-    );
+
+  //--?? handleDelete???
+  async function handleDeleteCategory(id:string){
+    await deleteCategoryMutation({id});
   }
-  
+
+  useEffect(() => {
+    if (deleteCategoryStatus.isSuccess) {
+      enqueueSnackbar("Categoria deletada com sucesso!", { variant: "success" });
+    }
+    if (deleteCategoryStatus.isError) {
+      enqueueSnackbar("Erro ao deletar categoria!", { variant: "error" });
+    }
+  }, [deleteCategoryStatus, enqueueSnackbar]);
+
+  if (error) {
+    return <Typography>Houve um erro ao buscar as categorias</Typography>;
+  }
+
   return (
     <Box maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      {/* Quick filter and other toolbar components can be added here if needed */  }
       <Box display="flex" justifyContent="flex-end">
         <Button
           variant="contained"
@@ -113,19 +68,19 @@ const CategoryList = () => {
           Nova Categoria
         </Button>
       </Box>
-      <Box sx={{ display: "flex", height: 600 }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          disableColumnFilter={true}
-          disableColumnSelector={true}
-          disableDensitySelector={true}
-          componentsProps={componentsProps}
-          components={{ Toolbar: GridToolbar }}
-          rowsPerPageOptions={[5, 10, 20, 50, 100]}
-          localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-        />
-      </Box>
+      {/* DataGrid Section */}
+
+      <CategoriesTable
+        data={data}
+        page={options.page - 1}
+        perPage={options.perPage}
+        isFetching={isFetching}
+        rowsPerPage={rowsPerPage}
+        handleDelete={handleDeleteCategory}
+        handleOnPageChange={handleOnPageChange}
+        handleOnPageSizeChange={handleOnPageSizeChange}
+        handleFilterChange={handleFilterChange}
+      />
       <Typography variant="h3">
         <hr />
         Tela de listagem das categorias

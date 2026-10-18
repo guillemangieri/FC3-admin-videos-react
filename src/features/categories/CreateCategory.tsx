@@ -1,13 +1,18 @@
 import { Box, Paper, Typography } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Category } from "./categorySlice";
 import { CategoryForm } from "./components/CategoryForm";
-import { useAppDispatch } from "../../app/hooks";
-import { createCategory } from "./categorySlice";
-
+import { useCreateCategoryMutation } from "./categorySlice";
+import { useSnackbar } from "notistack";
+// Importa o recurso de navegação para retornar à listagem após o cadastro.
+import { useNavigate } from "react-router-dom";
 const CategoryCreate = () => {
-  
-  const [isdisabled, setIsdisabled] = useState(false);
+  // Obtém a função que permite navegar entre as rotas da aplicação.
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+  const [createCategory, status] = useCreateCategoryMutation();
+  // Mantém o formulário habilitado: após o sucesso, a tela será substituída pela listagem.
+  const isdisabled = false;
   const [categoryState, setCategoryState] = useState<Category>({
     id: "",
     name: "",
@@ -17,7 +22,6 @@ const CategoryCreate = () => {
     updated_at: new Date().toISOString(),
     deleted_at: null,
   })
-  const dispatch = useAppDispatch();
   
   const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,11 +41,25 @@ const CategoryCreate = () => {
 
   async function handleSubmit(e:React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    dispatch(createCategory(categoryState));
-
+    setIsLoading(true);
+    await createCategory(categoryState);
+    setIsLoading(false);
   };
 
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (status.isSuccess) {
+      enqueueSnackbar("Categoria criada com sucesso!", { variant: "success" });
+      // Retorna à listagem somente após o sucesso, substituindo o cadastro no histórico.
+      navigate("/categories", { replace: true });
+    }
+    if (status.error) {
+      enqueueSnackbar("Erro ao criar categoria!", { variant: "error" });
+    }
+  // Inclui a função de navegação nas dependências utilizadas pelo efeito.
+  }, [enqueueSnackbar, status.error, status.isSuccess, navigate]);
+
 
   return (
     <Paper>
