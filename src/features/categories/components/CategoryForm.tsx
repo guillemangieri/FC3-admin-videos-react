@@ -38,7 +38,7 @@ export function CategoryForm({
               <TextField
                 required
                 name="name"
-                label="Name"
+                label="Nome"
                 value={category.name || ""}
                 disabled={isdisabled}
                 onChange={handleChange}
@@ -52,7 +52,7 @@ export function CategoryForm({
               <TextField
                 required
                 name="description"
-                label="Description"
+                label="Descrição"
                 inputProps={{ "data-testid": "description" }}
                 disabled={isdisabled}
                 onChange={handleChange}
@@ -70,19 +70,19 @@ export function CategoryForm({
                     color="secondary"
                     onChange={handleToggle}
                     checked={category.is_active || false}
-                    inputProps={{ "aria-label": "controlled" }}
+                    inputProps={{ "aria-label": "Ativo" }}
                     data-testid="is_active"
                     disabled={isdisabled}
                   />
                 }
-                label="Active"
+                label="Ativo"
               />
             </FormGroup>
           </Grid>
           <Grid item xs={12}>
             <Box display="flex" gap={2}>
               <Button variant="contained" component={Link} to="/categories">
-                Back
+                Voltar
               </Button>
 
               <Button
@@ -91,7 +91,7 @@ export function CategoryForm({
                 color="secondary"
                 disabled={isdisabled || isLoading}
               >
-                {isLoading ? "Loading..." : "Save"}
+                {isLoading ? "Carregando..." : "Salvar"}
               </Button>
             </Box>
           </Grid>

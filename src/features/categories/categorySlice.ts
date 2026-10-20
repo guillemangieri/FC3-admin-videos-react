@@ -3,16 +3,6 @@ import { apiSlice } from "../api/apiSlice";
 import type { CategoryParams, Result, Results } from "../../types/Category";
 import type { RootState } from "../../app/store";
 
-export interface Category {
-  id: string;
-  name: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  deleted_at: null | string;
-  description: null | string;
-}
-
 const endpointUrl = "/categories";
 
 function parseQueryParams(params: CategoryParams) {

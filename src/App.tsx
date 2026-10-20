@@ -4,10 +4,13 @@ import { Header } from "./components/Header";
 import { Layout } from "./components/Layout";
 import { appTheme } from "./config/theme";
 import { Routes, Route } from "react-router-dom";
+import { SnackbarProvider } from "notistack";
 import CategoryList from "./features/categories/ListCategory";
 import CategoryCreate from "./features/categories/CreateCategory";
 import CategoryEdit from "./features/categories/EditCategory";
-import { SnackbarProvider } from "notistack";
+import { ListCastmembers } from "./features/cast/ListCastmembers";
+import { CreateCastMember } from "./features/cast/CreateCastMembers";
+import { EditCastMember } from "./features/cast/EditCastMember";
 
 function App() {
   return (
@@ -35,6 +38,10 @@ function App() {
               <Route path="/categories" element={<CategoryList />} />
               <Route path="/categories/create" element={<CategoryCreate />} />
               <Route path="/categories/edit/:id" element={<CategoryEdit />} />
+
+              <Route path="/cast-members" element={<ListCastmembers />} />
+              <Route path="/cast-members/create" element={<CreateCastMember />} />
+              <Route path="/cast-members/edit/:id" element={<EditCastMember />} />
 
               <Route
                 path="*"

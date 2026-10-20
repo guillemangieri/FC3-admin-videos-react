@@ -45,17 +45,17 @@ export function CategoriesTable({
   };
 
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Name", flex: 1, renderCell: renderNameCell },
+    { field: "name", headerName: "Nome", flex: 1, renderCell: renderNameCell },
     {
       field: "isActive",
-      headerName: "Active",
+      headerName: "Ativa",
       flex: 1,
       type: "boolean",
       renderCell: renderIsActiveCell,
     },
     {
       field: "id",
-      headerName: "Actions",
+      headerName: "Ações",
       type: "string",
       flex: 1,
       renderCell: renderActionsCell,
@@ -77,7 +77,7 @@ export function CategoriesTable({
       <IconButton
         color="secondary"
         onClick={() => handleDelete(params.value)}
-        aria-label="delete"
+        aria-label="Excluir categoria"
         data-testid="delete-button"
       >
         <DeleteIcon />
@@ -99,7 +99,7 @@ export function CategoriesTable({
   function renderIsActiveCell(rowData: GridRenderCellParams) {
     return (
       <Typography color={rowData.value ? "primary" : "secondary"}>
-        {rowData.value ? "Active" : "Inactive"}
+        {rowData.value ? "Ativa" : "Inativa"}
       </Typography>
     );
   }
