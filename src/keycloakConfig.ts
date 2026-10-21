@@ -1,4 +1,4 @@
-import Keycloak from "keycloak-js";
+//import Keycloak from "keycloak-js";
 
 const keycloakConfig = {
   url: "http://localhost:8080/auth",
@@ -6,4 +6,5 @@ const keycloakConfig = {
   clientId: "react-auth",
 };
 
-export const keycloak = new Keycloak(keycloakConfig);
+//export const keycloak = new Keycloak(keycloakConfig);
+export {};

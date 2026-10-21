@@ -1,9 +1,20 @@
-import { createSlice } from "@reduxjs/toolkit";
+//import { createSlice } from "@reduxjs/toolkit";
 import { apiSlice } from "../api/apiSlice";
 import type { CategoryParams, Result, Results } from "../../types/Category";
-import type { RootState } from "../../app/store";
+//import type { RootState } from "../../app/store";
 
 const endpointUrl = "/categories";
+
+
+export interface Category {
+  id: string,
+  name: string,
+  description: string | null
+  is_active: boolean,
+  created_at: string,
+  updated_at: string
+  deleted_at: string | null
+};
 
 function parseQueryParams(params: CategoryParams) {
   const queryParams = new URLSearchParams();
@@ -85,7 +96,7 @@ export const categoriesApiSlice = apiSlice.injectEndpoints({
     }),
   }),
 });
-
+/*
 const category: Category = {
   id: "93seter8-1173-4730-a960-a7ed500923a4",
   name: "Aventura",
@@ -141,7 +152,7 @@ export const selectCategoryById = (state: RootState, id: string) => {
 
 export default categoriesSlice.reducer;
 export const { createCategory, updateCategory, deleteCategory } = categoriesSlice.actions;
-
+*/
 export const { 
   useGetCategoriesQuery,
   useDeleteCategoryMutation,

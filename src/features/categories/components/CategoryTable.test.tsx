@@ -107,7 +107,10 @@ describe("Tabela de categorias", () => {
     });
     expect(linkDaCategoria).toHaveAttribute("href", "/categories/edit/123");
 
-    const linhaDaCategoria = linkDaCategoria.closest('[role="row"]');
+    //const linhaDaCategoria = linkDaCategoria.closest('[role="row"]');
+
+    const linhaDaCategoria = linkDaCategoria.closest<HTMLElement>('[role="row"]');
+    
     expect(linhaDaCategoria).not.toBeNull();
     expect(within(linhaDaCategoria!).getByText("Ativa")).toBeInTheDocument();
   });
